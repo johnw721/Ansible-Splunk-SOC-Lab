@@ -1,0 +1,18 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Install Python
+      apt:
+        wget: python3
+        state: present
+    - name: Download Splunk Forwarder
+      get_url:
+        url: "https://download.splunk.com/products/universalforwarder/releases/9.0.0/linux/splunkforwarder-9.0.0-1-linux-2.6-x86_64.rpm"
+        dest: /tmp/splunk/splunkforwarder.rpm
+    - name: Point to the Splunk Forwarder directory
+      command: /opt/splunkforwarder/bin/splunk enable boot-start --accept-license --answer-yes
+    - name: Point towards log files
+      command: /opt/splunkforwarder/bin/splunk add monitor /var/log
+    - name: Start Splunk Forwarder
+      command: /opt/splunkforwarder/bin/splunk start
+      
