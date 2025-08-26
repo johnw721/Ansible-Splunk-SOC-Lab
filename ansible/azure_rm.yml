@@ -1,3 +1,8 @@
 plugin: azure.azcollection.azure_rm
 include_vm_resource_groups: true
 auth_source: auto
+keyed_groups:
+  - key: tags
+    prefix: tag
+  - key: tags.project
+    prefix: project

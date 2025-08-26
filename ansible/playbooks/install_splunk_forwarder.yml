@@ -3,16 +3,30 @@
   tasks:
     - name: Install Python
       apt:
-        wget: python3
+        name: python3
         state: present
+    - name: Create temporary directory for Splunk
+      file: path=/tmp/splunk
+      state: directory
     - name: Download Splunk Forwarder
       get_url:
         url: "https://download.splunk.com/products/universalforwarder/releases/9.0.0/linux/splunkforwarder-9.0.0-1-linux-2.6-x86_64.rpm"
         dest: /tmp/splunk/splunkforwarder.rpm
-    - name: Point to the Splunk Forwarder directory
+    - name: Install Splunk Forwarder
+      command: rpm -i /tmp/splunk/splunkforwarder.rpm
+    - name: Add Splunk Forwarder to the system
+      command: rpm -i /tmp/splunk/splunkforwarder.rpm
+    - name: Give splunk permissions to view logs
+      command: chown -R splunk:splunk /opt/splunkforwarder
+    - name: Enable boot-start
       command: /opt/splunkforwarder/bin/splunk enable boot-start --accept-license --answer-yes
     - name: Point towards log files
       command: /opt/splunkforwarder/bin/splunk add monitor /var/log
-    - name: Start Splunk Forwarder
-      command: /opt/splunkforwarder/bin/splunk start
+    - name: Deploy outputs.config
+      template:
+        src: outputs.config.j2
+        dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+    - handlers: Restart Splunk Forwarder
+      name: Restart Splunk Forwarder
+      command: /opt/splunkforwarder/bin/splunk restart
       

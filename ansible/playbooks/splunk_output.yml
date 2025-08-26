@@ -1,0 +1,18 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Configure Splunk Output
+      ansible.builtin.copy:
+      dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+      content: |
+        [tcpout]
+        defaultGroup = default-autolb-group
+
+        [tcpout:default-autolb-group]
+        server = 192.168.56.1:9997
+        useSSL = true
+      notify:
+        - Restart Splunk Forwarder
+    - handler: Restart Splunk Forwarder
+      name: Restart Splunk Forwarder
+      command: /opt/splunkforwarder/bin/splunk restart
