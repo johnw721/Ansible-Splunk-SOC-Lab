@@ -1,18 +1,28 @@
 - hosts: all
   become: true
+  vars:
+    splunk_server_ip: "192.168.56.1"
+    splunk_server_port: "9997"
   tasks:
     - name: Configure Splunk Output
       ansible.builtin.copy:
-      dest: /opt/splunkforwarder/etc/system/local/outputs.conf
-      content: |
-        [tcpout]
-        defaultGroup = default-autolb-group
+        dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+        owner: splunk
+        group: splunk
+        mode: '0644'
+        content: |
+          [tcpout]
+          defaultGroup = default-autolb-group
 
-        [tcpout:default-autolb-group]
-        server = 192.168.56.1:9997
-        useSSL = true
+          [tcpout:default-autolb-group]
+          server = {{ splunk_server_ip }}:{{ splunk_server_port }}
+          useSSL = true   # Enables SSL for forwarding; SSL certificates must be configured on both Splunk Forwarder and Splunk Indexer. See https://docs.splunk.com/Documentation/Splunk/latest/Security/ConfigureSplunkforwardingtousesecureconnections for setup instructions.
       notify:
         - Restart Splunk Forwarder
-    - handler: Restart Splunk Forwarder
-      name: Restart Splunk Forwarder
-      command: /opt/splunkforwarder/bin/splunk restart
+
+  handlers:
+    - name: Restart Splunk Forwarder
+      ansible.builtin.systemd:
+        name: splunk
+        state: restarted
+        enabled: yes

@@ -1,6 +1,6 @@
-plugin: azure.azcollection.azure_rm
+plugin: "azure.azcollection.azure_rm"
 auth_source: env
 
-
+# host_groups section defines groups based on tags
 host_groups:
   splunk_cluster: "tags.ansible_group == 'splunk'"
